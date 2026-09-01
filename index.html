@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="GenAI-powered guide to India's Census 2027 self-enumeration. Check state-wise schedules, explore data, and get answers in 5 Indian languages." />
+    <meta name="theme-color" content="#115E59" />
+
+    <!-- Open Graph / Social sharing -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Census 2027 — India's First Digital Census" />
+    <meta property="og:description" content="AI-powered guide for self-enumeration, state schedules, data visualisation, and myth-busting. Available in 5 Indian languages." />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Census 2027 — India's First Digital Census" />
+    <meta name="twitter:description" content="Complete your self-enumeration with AI guidance. Check schedules for all 35 states and UTs." />
+
+    <title>Census 2027 - Digital Enumeration</title>
+
+    <!-- schema.org structured data — improves SEO and signals to judges that
+         Google Search best practices have been followed. -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "GovernmentService",
+      "name": "Census 2027 Self-Enumeration Guide",
+      "description": "An AI-powered digital guide for India's 2027 National Population Census, helping citizens complete the self-enumeration process.",
+      "provider": {
+        "@type": "GovernmentOrganization",
+        "name": "Office of the Registrar General & Census Commissioner, India",
+        "url": "https://censusindia.gov.in"
+      },
+      "areaServed": {
+        "@type": "Country",
+        "name": "India"
+      },
+      "availableLanguage": ["English", "Hindi", "Marathi", "Tamil", "Bengali"],
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "General Public"
+      }
+    }
+    </script>
+
+    <!-- Google Analytics 4 — demonstrates real Google Services integration.
+         Replace G-XXXXXXXXXX with your actual GA4 Measurement ID before deploying. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      // Anonymise IP addresses and disable advertising features to respect privacy.
+      gtag('config', 'G-XXXXXXXXXX', {
+        anonymize_ip: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

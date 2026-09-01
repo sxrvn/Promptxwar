@@ -1,98 +1,52 @@
-# Census 2027 — Digital Enumeration
+# Promptxwar: Digital Enumeration (Census 2027 Demo)
 
-A GenAI-powered web app explaining and guiding users through India's Census 2027, its first fully
-digital census.
+A GenAI-powered web application that explains and guides users through India's Census 2027, highlighting the nation's first fully digital census process. The platform features an authoritative, government-grade UI design that stands apart from standard SaaS templates.
 
-**Live demo:** _add your Vercel URL here after deploying_
+## Overview
 
-## What it does
+This project was built to demonstrate how generative AI can simplify bureaucratic processes and national data collection. 
 
-| Requirement | Where |
+| Feature | Description |
 |---|---|
-| Explains the two phases and what each collects | `/phases` |
-| State-wise self-enumeration & survey dates | `/dates` (searchable, filterable by region) |
-| Guides users through self-enumeration | `/wizard` — step tracker + Gemini-powered chat guide |
-| Addresses privacy & misinformation | `/privacy` — confidentiality explainer + myth-vs-fact accordion |
-| Visualises census data meaningfully | `/data` — 5 charts (Recharts): population growth, literacy by state, urban/rural split, sex ratio trend, age distribution |
-| Multiple Indian languages | Language switcher in the navbar — English, Hindi, Marathi, Tamil, Bengali |
+| **Two-Phase Guide** (`/phases`) | Explains what the House Listing and Population Enumeration phases entail. |
+| **State-wise Dates** (`/dates`) | Searchable and filterable self-enumeration windows for every state. |
+| **AI Guide** (`/wizard`) | A Gemini-powered chat interface that walks users through self-enumeration. |
+| **Privacy & Trust** (`/privacy`) | Addresses data confidentiality and common misinformation. |
+| **Data Archive** (`/data`) | Visualizes population, literacy, and demographics using interactive Recharts. |
+| **Localization** | Multi-language support (English, Hindi, Marathi, Tamil, Bengali). |
 
-## Tech stack
+## Tech Stack
 
-- **React 19 + TypeScript + Vite** — build tooling
-- **Tailwind CSS v4** — styling
-- **React Router** — client-side routing
-- **Recharts** — data visualization
-- **Google Gemini API** (`gemini-2.0-flash`) — powers the self-enumeration chat guide in `src/lib/gemini.ts`
-- **Vitest** — unit tests (`src/lib/__tests__`, `src/data/__tests__`)
-- **GitHub Actions** — CI running lint, tests, and build on every push (`.github/workflows/ci.yml`)
+- **Framework**: React 19 + TypeScript + Vite
+- **Styling**: Tailwind CSS v4
+- **Typography**: Eczar (Headings) & Chivo (Body)
+- **Data Visualization**: Recharts
+- **AI Integration**: Google Gemini API (`gemini-2.0-flash`) via Vercel serverless functions
+- **Testing**: Vitest
 
-## Data & disclaimers
+## Distinctive Design System
 
-All state dates and census statistics are **illustrative sample data** for demo purposes — not
-official Census of India figures. This is clearly stated in the app footer and on the Data Explorer
-page.
+The application was recently overhauled to feature a rigid, authoritative visual identity suitable for a national census:
+- **Asymmetric Grid Layouts**: Sharp corners and thick structural borders (no soft shadows).
+- **Typography as Structure**: Strong use of `Eczar` to convey official documentation weight.
+- **Intentional Palette**: Deep Teal (`#115E59`) and Amber (`#F59E0B`) accents on Document White (`#F8F9FA`) and Navy Black (`#0D1B2A`).
 
-## Google services used
-
-- **Gemini API** — self-enumeration guide chatbot, called from `api/gemini.ts` (a Vercel
-  serverless function) and never from the browser directly
-- App is deployable on **Vercel** with zero configuration
-
-The chat guide gracefully falls back to a rule-based offline mode when the AI service is
-unavailable (e.g. no `GEMINI_API_KEY` configured), so the app remains fully functional and
-testable without a live key.
-
-## Local setup
+## Local Setup
 
 ```bash
 npm install
-cp .env.example .env.local   # then add your Gemini API key as GEMINI_API_KEY (server-side, not VITE_)
+cp .env.example .env.local   # Add your Gemini API key as GEMINI_API_KEY
 npm run dev
 ```
 
-**Note:** the `/api/gemini` serverless function only runs under Vercel's runtime, not the plain
-Vite dev server. For full local testing including the AI guide, use `npx vercel dev` instead of
-`npm run dev` (requires the Vercel CLI: `npm i -g vercel`, then `vercel dev`). `npm run dev` still
-works for everything else — the chat guide just falls back to offline demo answers.
+> **Note:** The `/api/gemini` proxy requires Vercel's runtime. For full AI capabilities locally, run `npx vercel dev` instead of `npm run dev`.
 
-## Scripts
+## Data Disclaimer
 
-```bash
-npm run dev          # local dev server
-npm run build        # type-check + production build
-npm run test          # run unit tests once
-npm run test:watch     # run unit tests in watch mode
-npm run lint            # lint
-```
+All state dates, schedules, and census statistics provided in this repository are **illustrative sample data** created for demonstration purposes. They do not represent official Census of India figures.
 
-## Deployment
+## Security & Architecture
 
-### Vercel
-1. Push this repo to GitHub.
-2. Import the repo in Vercel — it auto-detects Vite, no config needed.
-3. Add environment variable `GEMINI_API_KEY` (no `VITE_` prefix) in Vercel project settings.
-4. Deploy.
-
-### Getting a Gemini API key
-Get a free key at https://aistudio.google.com/app/apikey
-
-## Accessibility
-
-- Semantic HTML (`<nav>`, `<table>`, `<caption>`, `<th scope>`)
-- Skip-to-content link
-- ARIA labels on interactive controls (menu toggle, accordions, step tracker)
-- Keyboard-navigable throughout, visible focus rings
-- Chat log uses `aria-live="polite"` for screen reader updates
-
-## Security notes
-
-- **Gemini API key never reaches the client.** It's read server-side in `api/gemini.ts` via
-  `process.env.GEMINI_API_KEY` (deliberately no `VITE_` prefix, which would bundle it into public
-  client JS). The client only calls the same-origin `/api/gemini` proxy.
-- Basic per-IP rate limiting and input-length validation on the proxy endpoint to limit abuse of
-  the AI quota.
-- `.env.local` is git-ignored, `.env.example` documents required vars without real values.
-- Errors from the upstream AI service are caught and never expose internals (stack traces, raw
-  API errors) to the client.
-- No PII is actually collected or stored — the enumeration wizard is a demo flow only.
-# Promptxwar
+- **Secure API**: The Gemini API key never reaches the client browser. It is processed securely via a Vercel serverless proxy endpoint (`api/gemini.ts`).
+- **Offline Fallback**: If the API key is missing or the AI service is unreachable, the chat guide gracefully falls back to a rule-based offline mode.
+- **Privacy First**: No PII is collected or stored. The enumeration wizard is entirely a demo flow.

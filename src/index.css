@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Chivo:ital,wght@0,100..900;1,100..900&family=Eczar:wght@400..800&display=swap');
+@import "tailwindcss";
+
+:root {
+  --color-navy:           #0D1B2A;
+  --color-document-white: #F8F9FA;
+  --color-teal:           #115E59;
+  --color-india-green:    #115E59;  /* alias used by some components */
+  --color-saffron:        #FF9933;  /* Indian flag saffron, used in Navbar flag */
+  --color-amber:          #F59E0B;
+  --color-surface:        #FFFFFF;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--color-amber);
+  outline-offset: 2px;
+}
+
+body {
+  font-family: 'Chivo', system-ui, sans-serif;
+  background-color: var(--color-document-white);
+  color: var(--color-navy);
+}
+
+h1, h2, h3, h4, h5, h6, .display-text {
+  font-family: 'Eczar', serif;
+}

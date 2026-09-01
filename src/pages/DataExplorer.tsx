@@ -95,7 +95,7 @@ export default function DataExplorer() {
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
               <XAxis type="number" domain={[0, 100]} fontSize={12} />
               <YAxis type="category" dataKey="state" width={130} fontSize={11} />
-              <Tooltip formatter={(v: number) => [`${v}%`, 'Literacy']} />
+              <Tooltip formatter={(v: any) => [`${v}%`, 'Literacy']} />
               <Bar dataKey="literacy" radius={[0, 4, 4, 0]} cursor="pointer">
                 {literacyRateByState.map((entry, i) => (
                   <Cell
@@ -133,7 +133,7 @@ export default function DataExplorer() {
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
               <XAxis dataKey="group" fontSize={12} />
               <YAxis fontSize={12} />
-              <Tooltip formatter={(v: number) => [`${v}%`, 'Share']} />
+              <Tooltip formatter={(v: any) => [`${v}%`, 'Share']} />
               <Bar dataKey="pct" fill="#5B8DEF" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

@@ -15,15 +15,7 @@ const PROXY_ENDPOINT = '/api/gemini';
 const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_DIRECT_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-const SYSTEM_INSTRUCTION = `You are the official Census 2027 Self-Enumeration Guide for India.
-Your job is to walk residents step by step through the two-phase digital census process:
-Phase 1 (House Listing & Housing Census) collects household/building details.
-Phase 2 (Population Enumeration) collects individual demographic details for each usual resident.
-Be concise, friendly, and accurate. Always remind users that:
-- Participation data is confidential under the Census Act, 1948.
-- Self-enumeration is free and never requires payment or OTP sharing.
-- If unsure of an official date or legal detail, tell the user to check the official census portal rather than guessing.
-Answer in the same language the user is writing in when possible.`;
+import { CENSUS_SYSTEM_INSTRUCTION as SYSTEM_INSTRUCTION } from './systemInstruction';
 
 export async function askCensusGuide(
   history: ChatMessage[],

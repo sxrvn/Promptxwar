@@ -4,19 +4,17 @@ import type { Plugin } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-const SYSTEM_INSTRUCTION = `You are the official Census 2027 Self-Enumeration Guide for India.
-Your job is to walk residents step by step through the two-phase digital census process:
-Phase 1 (House Listing & Housing Census) collects household/building details.
-Phase 2 (Population Enumeration) collects individual demographic details for each usual resident.
-Be concise, friendly, and accurate. Always remind users that:
-- Participation data is confidential under the Census Act, 1948.
-- Self-enumeration is free and never requires payment or OTP sharing.
-- If unsure of an official date or legal detail, tell the user to check the official census portal rather than guessing.
-Answer in the same language the user is writing in when possible.`;
+// Read the shared system instruction from source rather than duplicating it.
+// vite.config runs in Node, so we parse the TS source file directly.
+const _siSource = readFileSync(resolve(import.meta.dirname, 'src/lib/systemInstruction.ts'), 'utf8');
+const _siMatch = _siSource.match(/CENSUS_SYSTEM_INSTRUCTION = `([\s\S]*?)`;/);
+const SYSTEM_INSTRUCTION = _siMatch ? _siMatch[1] : '';
 
 /** Dev-only plugin: serves /api/gemini so the AI guide works with `vite dev` (no Vercel CLI needed). */
 function devGeminiMiddleware(): Plugin {
@@ -107,10 +105,17 @@ function devGeminiMiddleware(): Plugin {
 export default defineConfig({
   plugins: [react(), tailwindcss(), devGeminiMiddleware()],
   test: {
-    // Use 'node' env: all current tests (gemini.test.ts, data.test.ts) are pure logic
-    // tests that mock fetch and assert on data structures — no DOM APIs needed.
-    // If component tests are added later, switch to 'happy-dom' (npm i -D happy-dom).
+    // Default to 'node' for all pure logic tests (gemini, data, scheduleUtils) that
+    // mock fetch and assert on data structures — no DOM APIs needed.
+    // Component tests that require DOM use the `@vitest-environment happy-dom` docblock
+    // at the top of the test file to opt in per-file.
     environment: 'node',
     globals: true,
+    environmentOptions: {
+      happyDOM: {
+        width: 1280,
+        height: 768,
+      },
+    },
   },
 })

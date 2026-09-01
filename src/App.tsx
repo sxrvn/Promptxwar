@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 // Lazy-load heavier/less-immediately-needed routes so the initial bundle (and the home page,
 // which most visitors land on) stays small. Recharts in particular is a large dependency that
@@ -33,16 +34,18 @@ export default function App() {
       </a>
       <Navbar />
       <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 py-8">
-        <Suspense fallback={<RouteLoadingFallback />}>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/phases" element={<Phases />} />
-            <Route path="/dates" element={<StateDates />} />
-            <Route path="/wizard" element={<Wizard />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/data" element={<DataExplorer />} />
-          </Routes>
-        </Suspense>
+        <ErrorBoundary>
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/phases" element={<Phases />} />
+              <Route path="/dates" element={<StateDates />} />
+              <Route path="/wizard" element={<Wizard />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/data" element={<DataExplorer />} />
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </main>
       <Footer />
     </div>

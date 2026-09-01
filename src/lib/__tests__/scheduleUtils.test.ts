@@ -114,9 +114,32 @@ describe('sanitiseFormField', () => {
 describe('isPositiveInteger', () => {
   it('returns true for "1"', () => expect(isPositiveInteger('1')).toBe(true));
   it('returns true for "10"', () => expect(isPositiveInteger('10')).toBe(true));
+  it('returns true for "100"', () => expect(isPositiveInteger('100')).toBe(true));
   it('returns false for "0"', () => expect(isPositiveInteger('0')).toBe(false));
   it('returns false for "-1"', () => expect(isPositiveInteger('-1')).toBe(false));
   it('returns false for "1.5" (float)', () => expect(isPositiveInteger('1.5')).toBe(false));
   it('returns false for empty string', () => expect(isPositiveInteger('')).toBe(false));
   it('returns false for non-numeric string', () => expect(isPositiveInteger('abc')).toBe(false));
 });
+
+// ─── additional daysUntil edge case ──────────────────────────────────────────
+describe('daysUntil — additional edge cases', () => {
+  it('returns 0 when the date is exactly now (to-the-millisecond)', () => {
+    const now = Date.now();
+    const isoNow = new Date(now).toISOString();
+    // Math.ceil(0 / 86400000) === 0
+    expect(daysUntil(isoNow, now)).toBe(0);
+  });
+});
+
+// ─── sanitiseFormField — additional edge case ─────────────────────────────────
+describe('sanitiseFormField — additional edge cases', () => {
+  it('returns empty string when input is only control characters', () => {
+    expect(sanitiseFormField('\x00\x01\x1F\x7F')).toBe('');
+  });
+
+  it('handles a string with mixed content and control chars correctly', () => {
+    expect(sanitiseFormField('hello\x00world')).toBe('helloworld');
+  });
+});
+

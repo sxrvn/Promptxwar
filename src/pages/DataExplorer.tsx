@@ -13,6 +13,11 @@ import { useLang } from '../i18n/LangContext';
 
 const COLORS = ['#115E59', '#F59E0B', '#0D1B2A', '#334155', '#94A3B8', '#E11D48', '#7C3AED'];
 
+/** Upper bound used to normalise sex-ratio values onto a 0–100 scale in the radar chart. */
+const MAX_SEX_RATIO_SCALE = 1100;
+/** Upper bound (millions) used to normalise population values onto a 0–100 scale in the radar chart. */
+const MAX_STATE_POP_M = 200;
+
 function getSchedule(stateName: string) {
   return stateSchedules.find(s => s.state === stateName) ?? null;
 }
@@ -27,8 +32,8 @@ function buildRadarData(states: StateSummary[]) {
   const dims = [
     { subject: 'Literacy',    get: (s: StateSummary) => s.literacy },
     { subject: 'Urban %',     get: (s: StateSummary) => s.urbanPct },
-    { subject: 'Sex Ratio',   get: (s: StateSummary) => Math.round((s.sexRatio / 1100) * 100) },
-    { subject: 'Population',  get: (s: StateSummary) => Math.min(100, Math.round((s.pop2011 / 200) * 100)) },
+    { subject: 'Sex Ratio',   get: (s: StateSummary) => Math.round((s.sexRatio / MAX_SEX_RATIO_SCALE) * 100) },
+    { subject: 'Population',  get: (s: StateSummary) => Math.min(100, Math.round((s.pop2011 / MAX_STATE_POP_M) * 100)) },
   ];
   return dims.map(d => {
     const row: Record<string, number | string> = { subject: d.subject };
@@ -85,9 +90,9 @@ export default function DataExplorer() {
               data={literacyRateByState}
               layout="vertical"
               margin={{ left: 20, right: 16 }}
-              onClick={(data: any) => {
+              onClick={(data) => {
                 if (!data?.activeLabel) return;
-                const stateName = data.activeLabel as string;
+                const stateName = String(data.activeLabel);
                 const s = stateSummaries.find(x => x.state === stateName) ?? null;
                 setSelectedState(prev => prev?.state === stateName ? null : s);
               }}
@@ -95,7 +100,7 @@ export default function DataExplorer() {
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
               <XAxis type="number" domain={[0, 100]} fontSize={12} />
               <YAxis type="category" dataKey="state" width={130} fontSize={11} />
-              <Tooltip formatter={(v: any) => [`${v}%`, 'Literacy']} />
+              <Tooltip formatter={(v) => [`${v}%`, 'Literacy']} />
               <Bar dataKey="literacy" radius={[0, 4, 4, 0]} cursor="pointer">
                 {literacyRateByState.map((entry, i) => (
                   <Cell
@@ -133,7 +138,7 @@ export default function DataExplorer() {
               <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
               <XAxis dataKey="group" fontSize={12} />
               <YAxis fontSize={12} />
-              <Tooltip formatter={(v: any) => [`${v}%`, 'Share']} />
+              <Tooltip formatter={(v) => [`${v}%`, 'Share']} />
               <Bar dataKey="pct" fill="#5B8DEF" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

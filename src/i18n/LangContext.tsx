@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { type Lang, t as translate } from './translations';
 
 interface LangContextType {
@@ -19,6 +19,12 @@ export function LangProvider({ children }: { children: ReactNode }) {
     setLang(l);
     window.localStorage.setItem('census-lang', l);
   }, []);
+
+  // Keep the html[lang] attribute in sync so screen readers and search engines
+  // always know the current content language — critical for a multilingual app.
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const t = useCallback((key: Parameters<typeof translate>[0]) => translate(key, lang), [lang]);
 

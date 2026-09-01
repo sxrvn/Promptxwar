@@ -36,7 +36,8 @@ export default function StateDates() {
     return () => clearInterval(id);
   }, []);
 
-  useMemo(() => {
+  // Debounce the search query to avoid filtering on every keystroke.
+  useEffect(() => {
     const handler = setTimeout(() => setDebouncedQuery(query), 300);
     return () => clearTimeout(handler);
   }, [query]);

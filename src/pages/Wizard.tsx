@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type FormEvent, type ChangeEvent } from 'react';
 import { askCensusGuide, type ChatMessage } from '../lib/gemini';
 import { useLang } from '../i18n/LangContext';
+import { sanitiseFormField, isPositiveInteger } from '../lib/scheduleUtils';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 interface FormData {
@@ -108,6 +109,8 @@ export default function Wizard() {
   const [loading,   setLoading]   = useState(false);
   const [aiStatus,  setAiStatus]  = useState<AiStatus>('unknown');
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Ref to the form section — used to move focus when the active step changes.
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Probe AI status on mount — send a lightweight ping.
   useEffect(() => {
@@ -123,6 +126,12 @@ export default function Wizard() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
+
+  // Move focus to the top of the form section whenever the active step changes,
+  // so keyboard and screen-reader users are not left stranded at the navigation buttons.
+  useEffect(() => {
+    formRef.current?.focus();
+  }, [activeStep]);
 
   async function sendMessage(text: string) {
     if (!text.trim() || loading) return;
@@ -143,15 +152,27 @@ export default function Wizard() {
   function handleChatSubmit(e: FormEvent) { e.preventDefault(); sendMessage(input); }
 
   function updateField(e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    // Sanitise free-text fields on every keystroke; leave number/select values as-is.
+    const sanitised = (type === 'text' || e.target.tagName === 'TEXTAREA')
+      ? sanitiseFormField(value)
+      : value;
+    setFormData(prev => ({ ...prev, [name]: sanitised }));
     setValidationError(null);
   }
 
   function validateCurrentStep(): boolean {
     const missing = (stepFields[activeStep] ?? []).filter(f => !formData[f].trim());
+    // Validate numeric fields with the stricter isPositiveInteger check.
+    const numericFields: (keyof FormData)[] = ['numRooms', 'memberCount'];
+    const invalidNumeric = (stepFields[activeStep] ?? [])
+      .filter(f => numericFields.includes(f) && formData[f].trim() !== '' && !isPositiveInteger(formData[f]));
     if (missing.length > 0) {
       setValidationError(`Please fill in: ${missing.map(f => fieldLabels[f]).join(', ')}`);
+      return false;
+    }
+    if (invalidNumeric.length > 0) {
+      setValidationError(`${invalidNumeric.map(f => fieldLabels[f]).join(', ')} must be a positive whole number.`);
       return false;
     }
     setValidationError(null);
@@ -228,9 +249,11 @@ export default function Wizard() {
           </ol>
 
           <form
+            ref={formRef}
             onSubmit={(e) => e.preventDefault()}
             className="p-5 rounded-xl border border-gray-200 bg-white"
             aria-label={steps[activeStep - 1].title}
+            tabIndex={-1}
           >
             {submitted ? (
               <div className="text-center py-6">
@@ -338,7 +361,7 @@ export default function Wizard() {
             <AiStatusPill status={aiStatus} />
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3" role="log" aria-live="polite">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3" role="log" aria-live="polite" aria-label="Chat conversation with the Census 2027 guide">
             {messages.map((m, i) => (
               <div
                 key={i}
@@ -346,6 +369,7 @@ export default function Wizard() {
                   m.role === 'user' ? 'ml-auto bg-orange-500 text-white' : 'bg-gray-100 text-gray-800'
                 }`}
               >
+                <span className="sr-only">{m.role === 'user' ? 'You: ' : 'Census Guide: '}</span>
                 {m.text}
               </div>
             ))}

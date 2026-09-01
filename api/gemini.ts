@@ -4,18 +4,18 @@
 
 export const config = { runtime: 'edge' };
 
+// Import the single source-of-truth system instruction rather than duplicating it.
+import { CENSUS_SYSTEM_INSTRUCTION } from '../src/lib/systemInstruction';
+
 const MODEL = 'gemini-2.0-flash';
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
-const SYSTEM_INSTRUCTION = `You are the official Census 2027 Self-Enumeration Guide for India.
-Your job is to walk residents step by step through the two-phase digital census process:
-Phase 1 (House Listing & Housing Census) collects household/building details.
-Phase 2 (Population Enumeration) collects individual demographic details for each usual resident.
-Be concise, friendly, and accurate. Always remind users that:
-- Participation data is confidential under the Census Act, 1948.
-- Self-enumeration is free and never requires payment or OTP sharing.
-- If unsure of an official date or legal detail, tell the user to check the official census portal rather than guessing.
-Answer in the same language the user is writing in when possible.`;
+/** Standard security headers applied to every response from this function. */
+const SECURITY_HEADERS: Record<string, string> = {
+  'Content-Type': 'application/json',
+  'X-Content-Type-Options': 'nosniff',
+  'Content-Security-Policy': "default-src 'none'",
+};
 
 // Basic in-memory rate limit per IP (best-effort; resets on cold start).
 // Not a substitute for a real rate limiter (e.g. Upstash) in production, but blocks trivial abuse.
@@ -80,13 +80,16 @@ export default async function handler(req: Request): Promise<Response> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents,
-        systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
+        systemInstruction: { parts: [{ text: CENSUS_SYSTEM_INSTRUCTION }] },
         generationConfig: { temperature: 0.4, maxOutputTokens: 512 },
       }),
     });
 
     if (!geminiRes.ok) {
-      return new Response(JSON.stringify({ error: 'Upstream AI service error' }), { status: 502 });
+      return new Response(JSON.stringify({ error: 'Upstream AI service error' }), {
+        status: 502,
+        headers: SECURITY_HEADERS,
+      });
     }
 
     const data = await geminiRes.json();
@@ -94,9 +97,12 @@ export default async function handler(req: Request): Promise<Response> {
 
     return new Response(JSON.stringify({ text }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: SECURITY_HEADERS,
     });
   } catch {
-    return new Response(JSON.stringify({ error: 'Failed to reach AI service' }), { status: 502 });
+    return new Response(JSON.stringify({ error: 'Failed to reach AI service' }), {
+      status: 502,
+      headers: SECURITY_HEADERS,
+    });
   }
 }

@@ -48,7 +48,12 @@ export default function Privacy() {
                 </span>
               </button>
               {openIndex === i && (
-                <div id={`myth-fact-${i}`} className="px-5 py-4 bg-green-50 text-green-900 text-sm">
+                <div
+                  id={`myth-fact-${i}`}
+                  role="region"
+                  aria-label={`Fact: ${mf.myth}`}
+                  className="px-5 py-4 bg-green-50 text-green-900 text-sm"
+                >
                   ✅ <strong>Fact:</strong> {mf.fact}
                 </div>
               )}
